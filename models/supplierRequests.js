@@ -1,7 +1,10 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
+
 const Schema = mongoose.Schema;
 
-const supRequest = new Schema({
+const procurementItemTypes = ["Office Supplies", "Construction Materials", "Electronics", "Industrial Equipment", "Chemicals", "Food and Beverages", "Other"];
+
+const supRequestSchema = new Schema({
 
     itemName: {
         type: String,
@@ -18,13 +21,18 @@ const supRequest = new Schema({
     itemType: {
         type: String,
         required: true,
+        enum: procurementItemTypes
     },
     requestDate: {
         type: Date,
         default: Date.now,
     },
+    requestedBy: {
+        type: String,
+        required: true,
+    }
 })
 
-const souvenir = mongoose.model("supplier requests", supRequest);
 
-module.exports = souvenir;
+const SupRequest = mongoose.model("supplier requests", supRequestSchema);
+export default SupRequest;
