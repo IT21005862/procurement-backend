@@ -14,6 +14,15 @@ router.get('/', async (req, res) => {
     }
   });
 
+  router.get('/accepted', async (req, res) => {
+    try {
+      const requests = await AcceptedRequest.find();
+      res.json(requests);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   router.post('/', async (req, res) => {
     const { itemName, quantity, description, itemType, requestedBy } = req.body;
     const requestDate = new Date();
@@ -35,7 +44,7 @@ router.get('/', async (req, res) => {
     }
   });
 
-  router.delete('/:id', async (req, res) => {
+  router.delete('/confirm/:id', async (req, res) => {
     const requestId = req.params.id;
     const acceptedBy = req.body.acceptedBy;
   
@@ -73,6 +82,48 @@ router.get('/', async (req, res) => {
         }
   
         res.json({ message: 'Supplier request deleted successfully' });
+  
+      } catch (err) {
+        res.status(400).json({ error: err.message });
+      }
+  
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+
+  router.delete('/cancel/:id', async (req, res) => {
+    const requestId = req.params.id;
+  
+    try {
+      const requestToDelete = await AcceptedRequest.findById(requestId);
+  
+      if (!requestToDelete) {
+        return res.status(404).json({ message: 'Accepted request not found' });
+      }
+  
+      const { itemName, quantity, description, itemType, requestDate, requestedBy } = requestToDelete;
+  
+      const newRequest = new SupRequest({
+        itemName,
+        quantity,
+        description,
+        itemType,
+        requestDate,
+        requestedBy
+      });
+  
+      try {
+        const savedRequest = await newRequest.save();
+  
+        const deletedRequest = await AcceptedRequest.findByIdAndDelete(requestId);
+  
+        if (!deletedRequest) {
+          return res.status(404).json({ message: 'Accepted request not found' });
+        }
+  
+        res.json({ message: 'Accepted request deleted successfully' });
   
       } catch (err) {
         res.status(400).json({ error: err.message });
