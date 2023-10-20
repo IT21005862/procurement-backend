@@ -4,6 +4,9 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import supRequestRoutes from "./routes/supplierRoutes.js";
+import authRoutes from "./routes/auth.js";
+import refreshTokenRoutes from "./routes/refreshToken.js"
+import userRoutes from "./routes/users.js";
 
 const PORT = process.env.PORT || 8070;
 dotenv.config();
@@ -30,3 +33,6 @@ connection.once("open", () => {
 });
 
 app.use("/api/supplierRequests", supRequestRoutes);
+app.use("/api", authRoutes);
+app.use("/api/refreshToken", refreshTokenRoutes);
+app.use("/api/users", userRoutes);

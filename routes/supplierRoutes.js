@@ -2,22 +2,33 @@
 import { Router } from "express";
 import SupRequest from "../models/supplierRequests.js";
 import AcceptedRequest from "../models/acceptedRequests.js";
+import User from "../models/User.js";
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.post('/fetch-pending-requests', async (req, res) => {
     try {
-      const requests = await SupRequest.find();
-      res.json(requests);
+        const userId = req.body.id;
+        const user = await User.findById(userId);
+        if(user){
+            const types = user.itemTypes; // Assuming types is an array
+            const requests = await SupRequest.find();
+            const filteredRequests = requests.filter(request => types.includes(request.itemType));
+            res.json(filteredRequests);
+        }
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   });
 
-  router.get('/accepted', async (req, res) => {
+
+  router.post('/accepted', async (req, res) => {
     try {
-      const requests = await AcceptedRequest.find();
-      res.json(requests);
+        const id = req.body.id;
+        const requests = await AcceptedRequest.find();
+        const filteredRequests = requests.filter(request => request.acceptedBy==id);
+     
+      res.json(filteredRequests);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
